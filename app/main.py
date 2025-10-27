@@ -3,6 +3,7 @@
 import os
 import json
 import logging
+import secrets
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Optional
@@ -56,9 +57,49 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# Constantes de validação de upload
+MAX_UPLOAD_SIZE = 50 * 1024 * 1024  # 50MB
+ALLOWED_EXTENSIONS = {".csv"}
+ALLOWED_MIME_TYPES = {"text/csv", "text/plain", "application/csv"}
+
+
+async def validate_upload(file: UploadFile) -> bytes:
+    """Valida arquivo de upload para segurança."""
+    # 1. Validar extensão
+    ext = Path(file.filename).suffix.lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"❌ Extensão não permitida: {ext}. Use: {ALLOWED_EXTENSIONS}"
+        )
+    
+    # 2. Ler conteúdo
+    content = await file.read()
+    file_size = len(content)
+    
+    # 3. Validar tamanho
+    if file_size > MAX_UPLOAD_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail=f"❌ Arquivo muito grande: {file_size/1024/1024:.2f}MB. Máximo: {MAX_UPLOAD_SIZE/1024/1024}MB"
+        )
+    
+    # 4. Validar MIME type (se disponível)
+    if file.content_type and file.content_type not in ALLOWED_MIME_TYPES:
+        logger.warning(f"MIME type suspeito: {file.content_type} para arquivo {file.filename}")
+    
+    # 5. Validar que não está vazio
+    if file_size == 0:
+        raise HTTPException(status_code=400, detail="❌ Arquivo vazio")
+    
+    return content
+
+
 def check_api_key(x_api_key: Optional[str]):
+    """Verifica API key de forma segura contra timing attacks."""
     expected_key = os.getenv("SECRET_API_KEY", "troque_aqui")
-    if not x_api_key or x_api_key != expected_key:
+    # Usar secrets.compare_digest() para evitar timing attacks
+    if not x_api_key or not secrets.compare_digest(x_api_key, expected_key):
         raise HTTPException(status_code=401, detail="Invalid API key")
 
 
@@ -86,13 +127,16 @@ class InferRequest(BaseModel):
 
 @app.post("/upload-csv")
 async def upload_csv(file: UploadFile = File(...), x_api_key: str = Header(None), request: Request = None):
+    """Upload e validação de arquivo CSV com segurança."""
     check_api_key(x_api_key)
     check_rate_limit(request)
+
+    # Validar arquivo antes de processar
+    content = await validate_upload(file)
 
     Path("uploads").mkdir(exist_ok=True)
     filepath = Path("uploads") / file.filename
 
-    content = await file.read()
     filepath.write_bytes(content)
 
     try:
@@ -106,6 +150,8 @@ async def upload_csv(file: UploadFile = File(...), x_api_key: str = Header(None)
             "n_items": int(df["item_id"].nunique()),
             "sample_rows": df.head(5).to_dict("records"),
         }
+    except pd.errors.ParserError as e:
+        raise HTTPException(status_code=400, detail=f"❌ CSV inválido: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
