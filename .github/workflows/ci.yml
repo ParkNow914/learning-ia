@@ -1,0 +1,29 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Lint with black
+      run: black --check *.py data/*.py app/*.py utils/*.py || true
+    
+    - name: Lint with flake8
+      run: flake8 *.py data/*.py app/*.py utils/*.py --max-line-length=120 --ignore=E501,W503 || true
+    
+    - name: Run tests
+      run: pytest tests/ -v --cov=. --cov-report=term
