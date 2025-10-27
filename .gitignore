@@ -43,15 +43,16 @@ venv.bak/
 data/*.csv
 data/*.zip
 data/*.gz
-data/*.json
-!data/sources.json
+# Keep sources.json as example
+# data/sources.json will be committed once as example
 
 # Models
 models/*.pt
 models/*.pkl
 models/*.onnx
 models/*.pth
-!models/metadata.json
+# Keep metadata.json as example
+# models/metadata.json will be committed once as example
 
 # Results
 results/*.json
