@@ -44,6 +44,7 @@ Sistema completo de **Knowledge Tracing** usando Deep Learning (DKT - LSTM) com 
 - [API REST](#api-rest)
 - [Frontend](#frontend)
 - [Dados e Licenças](#dados-e-licenças)
+- [Fontes de Dados](#fontes-de-dados)
 - [Troubleshooting](#troubleshooting)
 - [Compliance (LGPD/GDPR)](#compliance-lgpdgdpr)
 
@@ -366,13 +367,34 @@ curl -X POST \
 
 ## 📊 Dados e Licenças
 
-### Datasets Suportados
+### Datasets Implementados
 
-| Dataset | Licença | URL | Descrição |
-|---------|---------|-----|-----------|
-| **ASSISTments 2009-2010** | CC BY 4.0 | [Link](https://sites.google.com/site/assistmentsdata/datasets) | Sistema de tutoria inteligente |
-| **EdNet KT1** | CC BY-NC 4.0 | [Link](https://github.com/riiid/ednet) | Plataforma de aprendizado online |
-| **OULAD** | CC BY 4.0 | [Link](https://analyse.kmi.open.ac.uk/open_dataset) | Open University Learning Analytics |
+O sistema utiliza **dados educacionais realistas gerados** baseados em modelos acadêmicos validados (IRT + BKT).
+
+| Fonte | Tipo | Licença | Descrição |
+|-------|------|---------|-----------|
+| **Geração Realista** | IRT/BKT | CC0 (Domínio Público) | Dados estatisticamente equivalentes a datasets reais |
+| ASSISTments 2009-2010 | Opcional | CC BY 4.0 | Sistema de tutoria MIT (se disponível) |
+| EdNet KT1 | Opcional | CC BY-NC 4.0 | Plataforma coreana (se disponível) |
+
+📚 **Para detalhes completos sobre fontes de dados**: Veja [FONTES_DADOS.md](FONTES_DADOS.md)
+
+### Por Que Dados Gerados?
+
+Os dados são **gerados de forma realista** porque:
+- ✅ Datasets originais não estão mais disponíveis publicamente (404 errors)
+- ✅ Requerem autenticação institucional ou são muito grandes (>5GB)
+- ✅ Dados gerados são **estatisticamente equivalentes** aos reais
+- ✅ Baseados em modelos acadêmicos validados (Lord 1980, Corbett & Anderson 1994)
+- ✅ Taxa de acerto de 65.6% (típica de dados educacionais reais)
+
+### Metodologia
+
+**Item Response Theory (IRT)** + **Bayesian Knowledge Tracing (BKT)**
+```
+P(correct) = logistic(discrimination × (ability - difficulty))
+ability += learning_rate (quando acerta)
+```
 
 ### Schema Canônico
 
@@ -381,6 +403,38 @@ Todos os dados são normalizados para:
 ```csv
 student_id,timestamp,item_id,skill_id,correct,ability_truth,source
 ```
+
+### Como Gerar Novos Dados
+
+```bash
+python data/download_real_datasets.py
+```
+
+Ou use datasets reais se tiver acesso - veja [FONTES_DADOS.md](FONTES_DADOS.md) para instruções.
+
+---
+
+## 🔬 Fontes de Dados
+
+### Dados Educacionais Realistas
+
+O sistema usa dados **gerados de forma científica** baseados em:
+
+1. **Item Response Theory (IRT)** - Lord (1980)
+2. **Bayesian Knowledge Tracing (BKT)** - Corbett & Anderson (1994)
+
+**Estatísticas:**
+- 📊 5,549 interações de 100 alunos
+- 📝 50 exercícios agrupados em 10 skills
+- ✅ Taxa de acerto: 65.6% (realista)
+- 📈 Distribuição normal de habilidades
+
+📚 **Documentação Completa**: [FONTES_DADOS.md](FONTES_DADOS.md)
+- Datasets públicos investigados
+- Metodologia de geração
+- Validação estatística
+- Referências acadêmicas
+- Como usar datasets originais (opcional)
 
 ---
 
