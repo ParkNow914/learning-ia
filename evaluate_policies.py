@@ -75,7 +75,7 @@ def main():
     
     plt.figure()
     data = [np.random.normal(0.15, 0.05, 100), np.random.normal(0.05, 0.05, 100)]
-    plt.boxplot(data, labels=['DKT', 'Random'])
+    plt.boxplot(data, tick_labels=['DKT', 'Random'])
     plt.ylabel('Skill Gain')
     plt.title('Skill Gain by Policy')
     plt.savefig('results/figures/skill_gain_boxplot.png', dpi=150, bbox_inches='tight')
