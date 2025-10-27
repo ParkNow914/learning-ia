@@ -1,0 +1,10 @@
+[
+  {
+    "name": "Generated Realistic Educational Data (IRT/BKT based)",
+    "url": "local_generation",
+    "license": "MIT (code), CC0 (data)",
+    "md5": "7b282c190f883d179863a19a86712753",
+    "downloaded_at_iso": "2025-10-27T18:01:00.263358Z",
+    "notes": "Dados gerados usando Item Response Theory e Bayesian Knowledge Tracing - estatisticamente realistas"
+  }
+]

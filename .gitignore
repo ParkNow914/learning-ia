@@ -1,0 +1,76 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Data files (downloaded datasets)
+data/*.csv
+data/*.zip
+data/*.gz
+# Keep sources.json as example
+# data/sources.json will be committed once as example
+
+# Models
+models/*.pt
+models/*.pkl
+models/*.onnx
+models/*.pth
+# Keep metadata.json as example
+# models/metadata.json will be committed once as example
+
+# Results
+results/*.json
+results/*.log
+results/*.csv
+results/*.txt
+results/logs/*.log
+results/figures/*.png
+results/figures/*.jpg
+
+# Uploads
+uploads/*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
