@@ -10,6 +10,7 @@
 <body>
     <div class="container">
         <header>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">🌓</button>
             <h1>🎓 Knowledge Tracing</h1>
             <p>Sistema Inteligente de Recomendação de Exercícios</p>
         </header>
@@ -17,7 +18,7 @@
         <section class="upload-section">
             <h2>Upload de Dados</h2>
             <input type="file" id="csvFile" accept=".csv">
-            <button onclick="uploadCSV()">Carregar CSV</button>
+            <button onclick="uploadCSV()" id="uploadBtn">Carregar CSV</button>
             <div id="uploadStatus"></div>
         </section>
 
@@ -26,21 +27,34 @@
             <div class="form-group">
                 <label>Estratégia:</label>
                 <select id="strategy">
-                    <option value="target">Target (Dificuldade Ideal)</option>
+                    <option value="target">Target (Dificuldade Ideal - 0.7)</option>
                     <option value="info_gain">Ganho de Informação</option>
-                    <option value="exploration">Exploração</option>
+                    <option value="exploration">Exploração (Máxima Incerteza)</option>
                     <option value="heuristic">Heurística</option>
-                    <option value="random">Aleatória</option>
+                    <option value="random">Aleatória (Baseline)</option>
                 </select>
             </div>
-            <button onclick="getRecommendation()">Obter Recomendação</button>
+            <div class="form-group">
+                <label>Probabilidade Alvo (apenas para estratégia Target):</label>
+                <input type="number" id="targetP" min="0" max="1" step="0.1" value="0.7">
+            </div>
+            <button onclick="getRecommendation()" id="recommendBtn">Obter Recomendação</button>
             <div id="recommendation"></div>
         </section>
 
         <section class="metrics-section">
             <h2>Métricas do Modelo</h2>
             <div id="metrics"></div>
+            <div class="stats-grid" id="statsGrid"></div>
             <canvas id="metricsChart" width="400" height="200"></canvas>
+        </section>
+
+        <section class="advanced-section">
+            <h2>⚙️ Recursos Avançados</h2>
+            <button onclick="checkDrift()">Verificar Drift</button>
+            <button onclick="getCacheStats()">Estatísticas de Cache</button>
+            <button onclick="getUncertainty()">Estimativa de Incerteza</button>
+            <div id="advancedResults"></div>
         </section>
     </div>
 
