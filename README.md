@@ -1,6 +1,38 @@
 # 🎓 Knowledge Tracing + Recomendador de Exercícios
 
+**Sistema Inteligente de Aprendizagem Personalizada usando Deep Learning**
+
+> 💡 **Novo!** Sistema 100% em Português BR com linguagem acessível para todos!
+
 Sistema completo de **Knowledge Tracing** usando Deep Learning (DKT - LSTM) com recomendação personalizada de exercícios. Execução 100% local, sem Docker, usando dados educacionais reais.
+
+## 📚 Documentação para Todos os Níveis
+
+**Escolha o guia ideal para você:**
+
+- 🌟 **[README_DIDATICO.md](README_DIDATICO.md)** - **Para Professores e Educadores**
+  - Linguagem simples e acessível
+  - Explica "para que serve" cada coisa
+  - Sem jargão técnico
+  - Exemplos práticos de uso em sala de aula
+
+- 🚀 **[GUIA_INICIANTES.md](GUIA_INICIANTES.md)** - **Para Quem Está Começando com Programação**
+  - Passo a passo detalhado com capturas de tela
+  - Explica cada comando
+  - Solução de problemas comuns
+  - Não assume conhecimento prévio
+
+- ⚡ **[QUICKSTART.md](QUICKSTART.md)** - **Para Desenvolvedores**
+  - Comandos diretos sem explicações longas
+  - Referência rápida
+  - Para quem já tem experiência
+
+- 🎯 **Este README** - **Visão Geral Técnica**
+  - Arquitetura do sistema
+  - Especificações técnicas
+  - Para revisão e referência
+
+---
 
 ## 📋 Índice
 

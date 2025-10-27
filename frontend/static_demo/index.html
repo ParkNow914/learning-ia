@@ -3,59 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Knowledge Tracing - Recomendador de Exercícios</title>
+    <title>🎓 Sistema Inteligente de Aprendizagem - Knowledge Tracing</title>
+    <meta name="description" content="Sistema de IA que recomenda exercícios personalizados para cada aluno">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">🌓</button>
-            <h1>🎓 Knowledge Tracing</h1>
-            <p>Sistema Inteligente de Recomendação de Exercícios</p>
+            <button class="theme-toggle" onclick="toggleTheme()" title="🌓 Clique para alternar entre tema claro e escuro" aria-label="Alternar tema">🌓</button>
+            <h1>🎓 Sistema Inteligente de Aprendizagem</h1>
+            <p>📚 Recomendações personalizadas de exercícios usando Inteligência Artificial</p>
+            <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 0.5rem;">
+                💡 O sistema aprende com cada aluno e recomenda os exercícios ideais para seu nível
+            </p>
         </header>
 
         <section class="upload-section">
-            <h2>Upload de Dados</h2>
-            <input type="file" id="csvFile" accept=".csv">
-            <button onclick="uploadCSV()" id="uploadBtn">Carregar CSV</button>
+            <h2>📤 1. Envie Seus Dados</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                ℹ️ Faça upload de um arquivo CSV com histórico de exercícios dos alunos
+            </p>
+            <input type="file" id="csvFile" accept=".csv" aria-label="Selecionar arquivo CSV">
+            <button onclick="uploadCSV()" id="uploadBtn">📤 Carregar Arquivo</button>
             <div id="uploadStatus"></div>
+            <details style="margin-top: 1rem;">
+                <summary style="cursor: pointer; color: var(--primary-color);">❓ Qual formato usar?</summary>
+                <pre style="background: var(--section-bg); padding: 1rem; border-radius: 8px; margin-top: 0.5rem; overflow-x: auto;">
+student_id,timestamp,item_id,skill_id,correct
+aluno_001,2024-01-15T10:30:00,ex_mat_01,matematica,1
+aluno_001,2024-01-15T10:35:00,ex_mat_02,matematica,0
+                </pre>
+                <p style="margin-top: 0.5rem; font-size: 0.9em;">
+                    • <strong>student_id</strong>: Identificação do aluno<br>
+                    • <strong>timestamp</strong>: Data e hora<br>
+                    • <strong>item_id</strong>: Código do exercício<br>
+                    • <strong>skill_id</strong>: Habilidade/conceito<br>
+                    • <strong>correct</strong>: 1 = acertou, 0 = errou
+                </p>
+            </details>
         </section>
 
         <section class="recommend-section">
-            <h2>Recomendação Personalizada</h2>
+            <h2>🎯 2. Obtenha Recomendação Personalizada</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                🤖 A IA analisa o histórico e recomenda o melhor próximo exercício
+            </p>
             <div class="form-group">
-                <label>Estratégia:</label>
-                <select id="strategy">
-                    <option value="target">Target (Dificuldade Ideal - 0.7)</option>
-                    <option value="info_gain">Ganho de Informação</option>
-                    <option value="exploration">Exploração (Máxima Incerteza)</option>
-                    <option value="heuristic">Heurística</option>
-                    <option value="random">Aleatória (Baseline)</option>
+                <label>📊 Estratégia de Recomendação:</label>
+                <select id="strategy" aria-label="Escolher estratégia de recomendação">
+                    <option value="target">🎯 Target - Dificuldade Ideal (70% de chance de acerto) ⭐ RECOMENDADO</option>
+                    <option value="info_gain">📊 Ganho de Informação - Exercício mais informativo</option>
+                    <option value="exploration">🔍 Exploração - Máxima incerteza (para descobrir nível)</option>
+                    <option value="heuristic">🧮 Heurística - Regras simples (backup)</option>
+                    <option value="random">🎲 Aleatória - Sorteio (para comparação)</option>
                 </select>
+                <p style="font-size: 0.85em; color: var(--text-secondary); margin-top: 0.5rem;">
+                    💡 <strong>Target</strong> é a melhor para aprendizado real: nem muito fácil, nem muito difícil!
+                </p>
             </div>
             <div class="form-group">
-                <label>Probabilidade Alvo (apenas para estratégia Target):</label>
-                <input type="number" id="targetP" min="0" max="1" step="0.1" value="0.7">
+                <label>🎚️ Probabilidade Alvo (apenas para estratégia Target):</label>
+                <input type="number" id="targetP" min="0" max="1" step="0.05" value="0.7" aria-label="Probabilidade alvo">
+                <p style="font-size: 0.85em; color: var(--text-secondary); margin-top: 0.5rem;">
+                    💡 0.7 = 70% de chance de acertar (zona ideal de aprendizado)
+                </p>
             </div>
-            <button onclick="getRecommendation()" id="recommendBtn">Obter Recomendação</button>
+            <button onclick="getRecommendation()" id="recommendBtn">🎯 Obter Recomendação</button>
             <div id="recommendation"></div>
         </section>
 
         <section class="metrics-section">
-            <h2>Métricas do Modelo</h2>
+            <h2>📈 3. Veja o Desempenho do Sistema</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                📊 Métricas que mostram a qualidade das previsões da IA
+            </p>
             <div id="metrics"></div>
             <div class="stats-grid" id="statsGrid"></div>
+            <details style="margin-top: 1rem;">
+                <summary style="cursor: pointer; color: var(--primary-color);">❓ O que significam essas métricas?</summary>
+                <div style="margin-top: 1rem; font-size: 0.9em;">
+                    <p><strong>📊 AUC (Área Sob a Curva):</strong><br>
+                    Mede a qualidade das previsões. Quanto maior, melhor!<br>
+                    ✅ Bom: > 0.75 | 🎯 Excelente: > 0.85</p>
+                    
+                    <p><strong>🎯 Accuracy (Precisão):</strong><br>
+                    Porcentagem de previsões corretas.<br>
+                    ✅ Bom: > 70% | 🎯 Excelente: > 80%</p>
+                    
+                    <p><strong>📈 Ganho de Aprendizado:</strong><br>
+                    Quanto os alunos melhoram usando o sistema.<br>
+                    ✅ Bom: > 0.10 | 🎯 Excelente: > 0.15</p>
+                    
+                    <p><strong>⏱️ Tempo até Maestria:</strong><br>
+                    Quantos exercícios até dominar um conceito.<br>
+                    ✅ Bom: < 20 | 🎯 Excelente: < 15</p>
+                </div>
+            </details>
             <canvas id="metricsChart" width="400" height="200"></canvas>
         </section>
 
         <section class="advanced-section">
-            <h2>⚙️ Recursos Avançados</h2>
-            <button onclick="checkDrift()">Verificar Drift</button>
-            <button onclick="getCacheStats()">Estatísticas de Cache</button>
-            <button onclick="getUncertainty()">Estimativa de Incerteza</button>
+            <h2>⚙️ 4. Recursos Avançados</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                🔧 Ferramentas profissionais para monitoramento e otimização
+            </p>
+            <button onclick="checkDrift()" title="Verifica se o modelo precisa ser retreinado">
+                🔍 Verificar Drift do Modelo
+            </button>
+            <button onclick="getCacheStats()" title="Mostra estatísticas de performance do cache">
+                💾 Estatísticas de Cache
+            </button>
+            <button onclick="getUncertainty()" title="Mostra confiança das previsões usando MC Dropout">
+                🎲 Estimativa de Incerteza
+            </button>
             <div id="advancedResults"></div>
+            <details style="margin-top: 1rem;">
+                <summary style="cursor: pointer; color: var(--primary-color);">❓ Para que servem esses recursos?</summary>
+                <div style="margin-top: 1rem; font-size: 0.9em;">
+                    <p><strong>🔍 Drift do Modelo:</strong><br>
+                    Detecta se o modelo está "desatualizado" e precisa ser retreinado com dados mais recentes.</p>
+                    
+                    <p><strong>💾 Cache:</strong><br>
+                    Sistema que memoriza predições para responder mais rápido (até 90% mais rápido!).</p>
+                    
+                    <p><strong>🎲 Incerteza:</strong><br>
+                    Mostra o quão "confiante" a IA está em cada predição. Útil para decisões importantes.</p>
+                </div>
+            </details>
         </section>
+
+        <footer style="text-align: center; padding: 2rem 0; border-top: 2px solid var(--border-color); margin-top: 2rem; color: var(--text-secondary);">
+            <p>🎓 <strong>Sistema Inteligente de Aprendizagem</strong></p>
+            <p style="font-size: 0.9em; margin-top: 0.5rem;">
+                Desenvolvido com ❤️ para democratizar IA na educação brasileira<br>
+                Código aberto • Dados anonimizados • 100% em Português
+            </p>
+            <p style="font-size: 0.8em; margin-top: 1rem;">
+                💡 Dúvidas? Leia <a href="../README_DIDATICO.md" style="color: var(--primary-color);">README_DIDATICO.md</a> 
+                ou <a href="../GUIA_INICIANTES.md" style="color: var(--primary-color);">GUIA_INICIANTES.md</a>
+            </p>
+        </footer>
     </div>
 
     <script src="app.js"></script>

@@ -347,88 +347,125 @@ class DatasetFetcher:
         logger.info(f"Estatísticas salvas em {output_path}")
         
         # Imprimir resumo
-        print("\n" + "="*60)
-        print("RESUMO DO DATASET")
-        print("="*60)
-        print(f"Estudantes: {stats['n_students']}")
-        print(f"Itens: {stats['n_items']}")
-        print(f"Habilidades: {stats['n_skills']}")
-        print(f"Interações: {stats['n_interactions']}")
-        print(f"Taxa de acerto: {stats['correct_rate']:.2%}")
-        print(f"Período: {stats['date_range']['start'][:10]} até {stats['date_range']['end'][:10]}")
-        print(f"Interações por aluno (média): {stats['interactions_per_student']['mean']:.1f}")
-        print("\nFontes:")
+        print("\n" + "🎉" + "="*58 + "🎉")
+        print("  📊 RESUMO DOS DADOS COLETADOS")
+        print("🎉" + "="*58 + "🎉\n")
+        print(f"👥 Estudantes: {stats['n_students']:,} alunos diferentes")
+        print(f"📝 Exercícios: {stats['n_items']:,} tipos de exercícios")
+        print(f"🎯 Habilidades: {stats['n_skills']:,} conceitos/tópicos")
+        print(f"✍️  Interações: {stats['n_interactions']:,} respostas registradas")
+        print(f"✅ Taxa de acerto geral: {stats['correct_rate']:.1%}")
+        print(f"📅 Período: {stats['date_range']['start'][:10]} até {stats['date_range']['end'][:10]}")
+        print(f"📊 Média de exercícios por aluno: {stats['interactions_per_student']['mean']:.0f}")
+        print(f"\n📚 Fontes dos dados:")
         for source, count in stats['sources'].items():
-            print(f"  - {source}: {count} interações")
+            print(f"   • {source.capitalize()}: {count:,} interações")
+        print("\n" + "="*60)
+        print("✅ DADOS PRONTOS PARA TREINAR A INTELIGÊNCIA ARTIFICIAL!")
         print("="*60 + "\n")
+
+
+def print_welcome():
+    """Imprime mensagem de boas-vindas amigável."""
+    print("\n" + "🎓" * 30)
+    print("  📚 PREPARADOR DE DADOS EDUCACIONAIS")
+    print("  🤖 Sistema Inteligente de Aprendizagem")
+    print("🎓" * 30 + "\n")
+    print("👋 Olá! Vou buscar dados educacionais reais para treinar a IA.")
+    print("📊 Os dados vêm de instituições educacionais públicas.")
+    print("🔒 Todos os nomes serão anonimizados para proteger a privacidade.")
+    print("⏱️  Isso pode levar alguns minutos. Aguarde...\n")
 
 
 def main():
     """Função principal."""
+    print_welcome()
+    
     parser = argparse.ArgumentParser(
-        description='Download e preparação de datasets educacionais reais'
+        description='📥 Download e preparação de dados educacionais reais - Sistema totalmente em Português',
+        epilog='💡 Exemplo: python data/data_fetch_and_prepare.py --datasets assistments --anonymize'
     )
     parser.add_argument(
         '--datasets',
         type=str,
         default='assistments,ednet,oulad',
-        help='Datasets a baixar (separados por vírgula): assistments,ednet,oulad,kdd,kaggle'
+        help='📚 Datasets a baixar (separados por vírgula). Exemplos: assistments,ednet,oulad'
     )
     parser.add_argument(
         '--limit-download',
         action='store_true',
-        help='Limitar download para demo rápido'
+        help='⚡ Baixar menos dados para teste rápido (ideal para primeiros testes)'
     )
     parser.add_argument(
         '--anonymize',
         action='store_true',
         default=True,
-        help='Anonimizar student_id (default: True)'
+        help='🔒 Proteger identidade dos alunos transformando nomes em códigos (RECOMENDADO)'
     )
     parser.add_argument(
         '--seed',
         type=int,
         default=42,
-        help='Seed para reproducibilidade (default: 42)'
+        help='🎲 Número mágico para resultados sempre iguais (deixe 42 se não souber)'
     )
     parser.add_argument(
         '--out-csv',
         type=str,
         default='data/real_combined_dataset.csv',
-        help='Caminho do CSV de saída'
+        help='💾 Onde salvar o arquivo final (deixe o padrão se não souber)'
     )
     parser.add_argument(
         '--allow-bootstrap',
         action='store_true',
         default=False,
-        help='Permitir bootstrap de dados (desabilitado por padrão)'
+        help='🔧 Opção avançada: permitir criação de dados sintéticos se necessário'
     )
     
     args = parser.parse_args()
     
+    print(f"📋 Configuração escolhida:")
+    print(f"   • Datasets: {args.datasets}")
+    print(f"   • Anonimização: {'✅ SIM (seguro!)' if args.anonymize else '⚠️ NÃO'}")
+    print(f"   • Modo rápido: {'✅ SIM' if args.limit_download else 'Não (download completo)'}")
+    print(f"   • Arquivo de saída: {args.out_csv}")
+    print()
+    
     # Inicializar fetcher
+    print("🔧 Iniciando sistema...")
     fetcher = DatasetFetcher(seed=args.seed, anonymize=args.anonymize)
     
     # Processar datasets solicitados
     datasets_to_fetch = [ds.strip() for ds in args.datasets.split(',')]
     dataframes = []
     
-    for dataset_name in datasets_to_fetch:
+    print(f"\n📥 Vou baixar {len(datasets_to_fetch)} dataset(s):\n")
+    
+    for i, dataset_name in enumerate(datasets_to_fetch, 1):
+        print(f"📦 [{i}/{len(datasets_to_fetch)}] Processando: {dataset_name.upper()}")
         try:
             if dataset_name == 'assistments':
+                print("   ℹ️  Assistments: Dados de matemática de escolas americanas")
                 df = fetcher.fetch_assistments_data(args.limit_download)
                 dataframes.append(df)
+                print(f"   ✅ {len(df)} interações obtidas!\n")
             elif dataset_name == 'ednet':
+                print("   ℹ️  EdNet: Dados de aprendizado de inglês da Coréia")
                 df = fetcher.fetch_ednet_data(args.limit_download)
                 dataframes.append(df)
+                print(f"   ✅ {len(df)} interações obtidas!\n")
             elif dataset_name == 'oulad':
+                print("   ℹ️  OULAD: Dados de universidade aberta do Reino Unido")
                 df = fetcher.fetch_oulad_data(args.limit_download)
                 dataframes.append(df)
+                print(f"   ✅ {len(df)} interações obtidas!\n")
             else:
+                print(f"   ⚠️  Dataset '{dataset_name}' não disponível ainda, pulando...\n")
                 logger.warning(f"Dataset '{dataset_name}' não implementado, pulando...")
         except Exception as e:
+            print(f"   ❌ Erro ao processar '{dataset_name}': {e}\n")
             logger.error(f"Erro ao processar dataset '{dataset_name}': {e}")
             if not args.allow_bootstrap:
+                print("💡 Dica: Use --allow-bootstrap se quiser continuar mesmo com erros")
                 raise
     
     if not dataframes:
