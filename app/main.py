@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
 import numpy as np
+import torch
 from dkt_model import load_model
 from recommender import recommend_next
 
@@ -191,15 +192,70 @@ async def mc_dropout_inference(
         if not Path(model_path).exists():
             raise HTTPException(status_code=404, detail="❌ Modelo não encontrado")
         
-        # TODO: Implementar carregamento do modelo avançado com MC Dropout
-        # Por ora, retorna mock
+        # Carregar modelo avançado com MC Dropout
+        checkpoint = torch.load(model_path, map_location='cpu')
+        n_items = checkpoint.get("n_items", 50)
+        n_skills = checkpoint.get("n_skills", 10)
+        
+        # Criar modelo avançado
+        model = DKTModelAdvanced(
+            n_items=n_items,
+            n_skills=n_skills,
+            hidden_size=checkpoint.get("hidden_size", 128),
+            n_layers=checkpoint.get("n_layers", 2),
+            use_mc_dropout=True,
+            dropout_rate=0.3
+        )
+        model.load_state_dict(checkpoint["model_state_dict"])
+        model.eval()
+        
+        # Preparar dados de entrada
+        student_history = request_data.get("student_history", [])
+        candidate_item = request_data.get("candidate_item", "item_0")
+        n_samples = request_data.get("n_samples", 10)
+        
+        if not student_history:
+            raise HTTPException(status_code=400, detail="❌ student_history não pode ser vazio")
+        
+        # Obter mapeamento de itens
+        item_to_idx = checkpoint.get("item_to_idx", {})
+        
+        # Preparar sequência
+        import torch
+        seq_len = len(student_history)
+        inputs = torch.zeros((1, seq_len, n_items * 2))
+        
+        for i, interaction in enumerate(student_history):
+            item_id = interaction.get("item_id", "")
+            correct = interaction.get("correct", 0)
+            
+            if item_id in item_to_idx:
+                idx = item_to_idx[item_id]
+                offset = n_items if correct else 0
+                inputs[0, i, offset + idx] = 1
+        
+        # Executar MC Dropout
+        mean_prob, std_prob = model.predict_with_uncertainty(
+            inputs,
+            n_samples=n_samples
+        )
+        
+        # Calcular confiança
+        if std_prob < 0.1:
+            confidence = "alta"
+        elif std_prob < 0.2:
+            confidence = "média"
+        else:
+            confidence = "baixa"
+        
         return {
             "mensagem": "✅ MC Dropout inference executado",
-            "probabilidade_media": 0.72,
-            "incerteza_std": 0.04,
-            "confianca": "alta",
-            "n_samples": request_data.get("n_samples", 10),
-            "dica": "Incerteza baixa indica alta confiança na predição"
+            "probabilidade_media": float(mean_prob),
+            "incerteza_std": float(std_prob),
+            "confianca": confidence,
+            "n_samples": n_samples,
+            "dica": f"Incerteza {'baixa' if std_prob < 0.1 else 'média' if std_prob < 0.2 else 'alta'} indica {'alta' if std_prob < 0.1 else 'média' if std_prob < 0.2 else 'baixa'} confiança na predição",
+            "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
         logger.error(f"Erro em MC Dropout: {str(e)}")
