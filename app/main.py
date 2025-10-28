@@ -10,6 +10,7 @@ from typing import List, Dict, Optional
 from fastapi import FastAPI, File, UploadFile, Header, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel
 import pandas as pd
 import numpy as np
@@ -36,14 +37,21 @@ drift_detector = DriftDetector() if ADVANCED_FEATURES else None
 
 app = FastAPI(
     title="Knowledge Tracing API",
-    version="2.0.0",
-    description="API para sistema de Knowledge Tracing com features avançadas"
+    version="2.2.0",
+    description="API para sistema de Knowledge Tracing com features avançadas",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
 )
 
+# Adicionar compressão GZIP (melhora performance)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 # Configurar CORS para permitir acesso do frontend
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Em produção, especificar domínios
+    allow_origins=allowed_origins if allowed_origins != ["*"] else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
