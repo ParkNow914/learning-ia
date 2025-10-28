@@ -1,0 +1,72 @@
+# Render.com - Arquivos ignorados no deploy
+
+# Tests
+tests/
+pytest.ini
+.pytest_cache/
+
+# Development
+.env
+.env.local
+.venv/
+venv/
+env/
+
+# Documentation (não necessário em produção)
+docs/
+*.md
+!README.md
+
+# Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD (não necessário no Render)
+.github/
+.pre-commit-config.yaml
+
+# Docker (não necessário no Render)
+Dockerfile
+docker-compose.yml
+.dockerignore
+DOCKER_GUIDE.md
+
+# Analysis docs (grandes, não necessários)
+ANALISE_MELHORIAS_DETALHADA.md
+MELHORIAS_PRIORIZADAS.md
+LEVANTAMENTO_MELHORIAS.md
+TABELA_MELHORIAS.md
+COMECE_AQUI.md
+INDICE_MELHORIAS.md
+IMPLEMENTACOES.md
+ENV_SETUP.md
+
+# Temporary
+tmp/
+temp/
+*.tmp
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+build/
+dist/
+*.egg-info/

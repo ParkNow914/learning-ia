@@ -1,0 +1,98 @@
+# Render.com Blueprint - Complete deployment configuration
+# Supports: Web Service (FastAPI), Redis, Static Site (Frontend)
+# Free tier: Yes (all services)
+# Auto-deploy: Yes (on git push)
+
+services:
+  # FastAPI Backend
+  - type: web
+    name: learning-ia-api
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.10"
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: SECRET_API_KEY
+        generateValue: true
+      - key: SALT_ANON
+        generateValue: true
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: learning-ia-redis
+          property: connectionString
+      - key: RATE_LIMIT_PER_MIN
+        value: "60"
+      - key: MAX_SEQ_LEN
+        value: "200"
+      - key: SEED
+        value: "42"
+      - key: MAX_UPLOAD_SIZE_MB
+        value: "50"
+      - key: ALLOWED_ORIGINS
+        value: "https://learning-ia-frontend.onrender.com,http://localhost:3000"
+      - key: ENABLE_METRICS
+        value: "true"
+    autoDeploy: true
+
+  # Redis for rate limiting and caching
+  - type: redis
+    name: learning-ia-redis
+    region: oregon
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
+
+  # Frontend static site
+  - type: web
+    name: learning-ia-frontend
+    env: static
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: "echo 'Static site ready'"
+    staticPublishPath: ./interface_demo
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=3600
+    envVars:
+      - key: API_URL
+        value: https://learning-ia-api.onrender.com
+    autoDeploy: true
+
+databases: []
+
+# Notes:
+# 1. Free tier limitations:
+#    - Web services spin down after 15 min of inactivity (cold start ~30s)
+#    - Redis: 25 MB storage, no persistence across restarts
+#    - 750 hours/month total (enough for 24/7 if only 1 service)
+#
+# 2. To deploy:
+#    - Push this file to your repo
+#    - Go to https://render.com
+#    - Click "New" -> "Blueprint"
+#    - Connect your GitHub repo
+#    - Render will auto-deploy all services
+#
+# 3. Upgrade path:
+#    - Starter plan ($7/mo): No spin-down, persistent Redis
+#    - Standard plan ($25/mo): More resources, autoscaling
+#
+# 4. Custom domain (free):
+#    - Add custom domain in Render dashboard
+#    - Update ALLOWED_ORIGINS accordingly
