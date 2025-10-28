@@ -1,4 +1,4 @@
-.PHONY: help install test lint format security clean run-api run-frontend
+.PHONY: help install test lint format security clean run-api run-frontend docker-build docker-up docker-down docker-logs
 
 help:  ## Show this help message
 	@echo "Comandos disponíveis:"
@@ -11,6 +11,9 @@ install:  ## Install all dependencies
 
 test:  ## Run all tests
 	pytest tests/ -v --cov=. --cov-report=term-missing --cov-report=html
+
+test-security:  ## Run security tests only
+	pytest tests/test_security.py -v
 
 lint:  ## Run linters (flake8, mypy)
 	flake8 . --max-line-length=120 --extend-ignore=E203,W503 --exclude=.venv,venv,__pycache__,.git
@@ -47,3 +50,26 @@ setup:  ## Complete setup (install + download data + train)
 
 validate:  ## Run validation script
 	python validar_sistema.py
+
+# Docker commands
+docker-build:  ## Build Docker images
+	docker-compose build
+
+docker-up:  ## Start all services with Docker Compose
+	docker-compose up -d
+
+docker-down:  ## Stop all services
+	docker-compose down
+
+docker-logs:  ## Show logs from all services
+	docker-compose logs -f
+
+docker-restart:  ## Restart all services
+	docker-compose restart
+
+docker-clean:  ## Clean Docker resources
+	docker-compose down -v
+	docker system prune -f
+
+docker-shell:  ## Open shell in API container
+	docker-compose exec api /bin/bash

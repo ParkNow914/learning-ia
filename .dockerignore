@@ -1,0 +1,65 @@
+# Docker and Docker Compose
+.dockerignore
+Dockerfile
+docker-compose.yml
+docker-compose.*.yml
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Documentation
+*.md
+docs/
+
+# Data and models (keep them local, not in image)
+data/*.csv
+data/*.zip
+models/*.pt
+models/*.pkl
+results/
+
+# Uploads
+uploads/
+
+# Logs
+*.log
+results/logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.github/
+.pre-commit-config.yaml

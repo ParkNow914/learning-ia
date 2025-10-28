@@ -97,7 +97,31 @@ Veja `requirements.txt` completo para versões fixas.
 
 ## ⚡ Instalação Rápida
 
-### Opção 1: Script Demo Automático (Recomendado)
+### Opção 1: Docker (Mais Fácil) 🐳
+
+```bash
+# Clone o repositório
+git clone https://github.com/ParkNow914/learning-ia.git
+cd learning-ia
+
+# Configure variáveis de ambiente
+cp .env.example .env
+
+# Inicie com Docker Compose
+make docker-up
+# ou: docker-compose up -d
+```
+
+**Pronto!** Acesse:
+- API: http://localhost:8000
+- Frontend: http://localhost:8080
+- Docs: http://localhost:8000/docs
+
+Ver [DOCKER_GUIDE.md](DOCKER_GUIDE.md) para mais detalhes.
+
+---
+
+### Opção 2: Script Demo Automático (Recomendado para Local)
 
 ```bash
 # Clone o repositório
@@ -117,7 +141,7 @@ Este script:
 5. Avalia políticas
 6. Gera relatório final
 
-### Opção 2: Instalação Manual
+### Opção 3: Instalação Manual
 
 ```bash
 # Criar ambiente virtual

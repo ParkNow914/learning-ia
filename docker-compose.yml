@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: learning-ia-api
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_API_KEY=${SECRET_API_KEY:-change_this_key_in_production}
+      - SALT_ANON=${SALT_ANON:-change_this_salt}
+      - RATE_LIMIT_PER_MIN=${RATE_LIMIT_PER_MIN:-60}
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./results:/app/results
+      - ./uploads:/app/uploads
+    depends_on:
+      - redis
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - learning-ia-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: learning-ia-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - learning-ia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  frontend:
+    image: nginx:alpine
+    container_name: learning-ia-frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend/static_demo:/usr/share/nginx/html
+    networks:
+      - learning-ia-network
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  learning-ia-network:
+    driver: bridge
