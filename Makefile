@@ -15,6 +15,15 @@ test:  ## Run all tests
 test-security:  ## Run security tests only
 	pytest tests/test_security.py -v
 
+test-logging:  ## Run structured logging tests
+	pytest tests/test_structured_logging.py -v
+
+test-limiter:  ## Run rate limiter tests
+	pytest tests/test_redis_limiter.py -v
+
+test-unit:  ## Run unit tests only (fast)
+	pytest tests/test_structured_logging.py tests/test_redis_limiter.py -v
+
 lint:  ## Run linters (flake8, mypy)
 	flake8 . --max-line-length=120 --extend-ignore=E203,W503 --exclude=.venv,venv,__pycache__,.git
 	mypy . --config-file=mypy.ini

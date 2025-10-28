@@ -28,12 +28,32 @@ except ImportError:
     ADVANCED_FEATURES = False
     logging.warning("Features avançadas não disponíveis")
 
-# Rate limiting simples em memória
-rate_limit_store = {}
+# Importar structured logging e rate limiting
+try:
+    from utils.structured_logging import configure_structured_logging, get_logger
+    from utils.redis_limiter import get_rate_limiter
+    
+    # Configure structured logging
+    log_level = os.getenv("LOG_LEVEL", "INFO")
+    json_logs = os.getenv("ENVIRONMENT", "development") == "production"
+    configure_structured_logging(log_level=log_level, json_logs=json_logs)
+    
+    USE_STRUCTURED_LOGGING = True
+except ImportError:
+    USE_STRUCTURED_LOGGING = False
+    logging.warning("Structured logging não disponível. Usando logging padrão.")
 
 # Inicializar features avançadas
 prediction_cache = PredictionCache() if ADVANCED_FEATURES else None
 drift_detector = DriftDetector() if ADVANCED_FEATURES else None
+
+# Inicializar rate limiter (Redis ou fallback in-memory)
+try:
+    rate_limiter = get_rate_limiter()
+except Exception as e:
+    logging.warning(f"Rate limiter initialization failed: {e}. Using simple in-memory store.")
+    rate_limiter = None
+    rate_limit_store = {}
 
 app = FastAPI(
     title="Knowledge Tracing API",
@@ -62,7 +82,12 @@ logging.basicConfig(
     format='{"timestamp":"%(asctime)s","level":"%(levelname)s","message":"%(message)s"}',
     handlers=[logging.FileHandler("results/logs/api.log"), logging.StreamHandler()],
 )
-logger = logging.getLogger(__name__)
+
+# Use structured logger if available, else standard
+if USE_STRUCTURED_LOGGING:
+    logger = get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 
 # Constantes de validação de upload
@@ -112,7 +137,41 @@ def check_api_key(x_api_key: Optional[str]):
 
 
 def check_rate_limit(request: Request):
+    """Check rate limit using Redis-backed limiter with fallback."""
     ip = request.client.host
+    
+    # Try using Redis-backed rate limiter
+    if rate_limiter:
+        try:
+            allowed, info = rate_limiter.is_allowed(ip)
+            if not allowed:
+                if USE_STRUCTURED_LOGGING:
+                    logger.warning(
+                        "rate_limit_exceeded",
+                        ip=ip,
+                        limit=info["limit"],
+                        used=info["used"],
+                        reset_at=info["reset_at"]
+                    )
+                else:
+                    logger.warning(f"Rate limit exceeded for IP {ip}")
+                
+                raise HTTPException(
+                    status_code=429,
+                    detail=f"Rate limit exceeded. Try again after {info['reset_at']}",
+                    headers={
+                        "X-RateLimit-Limit": str(info["limit"]),
+                        "X-RateLimit-Remaining": str(info["remaining"]),
+                        "X-RateLimit-Reset": info["reset_at"]
+                    }
+                )
+            return
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Rate limiter error: {e}. Falling back to in-memory.")
+    
+    # Fallback to simple in-memory rate limiting
     now = datetime.now()
     if ip not in rate_limit_store:
         rate_limit_store[ip] = []
